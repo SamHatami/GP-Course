@@ -1,0 +1,6 @@
+
+*.vsidx
+
+.vs/3DSoftwareRendering/v17/
+
+Debug/
