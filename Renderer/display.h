@@ -20,5 +20,5 @@ void draw_gradient(void);
 void draw_pixel(int x, int y, uint32_t color);
 void draw_grid(uint32_t color);
 void draw_rect(int start_x, int start_y, int width, int height, uint32_t color);
-
+void draw_point(int pos_x, int pos_y, int size, uint32_t color);
 #endif

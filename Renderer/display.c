@@ -6,8 +6,8 @@ SDL_Texture* color_buffer_texture = NULL;
 
 uint32_t* color_buffer = NULL;
 
-int window_width = 800;
-int window_height = 800;
+int window_width = 1280;
+int window_height = 1280;
 
 bool initilizeWindow(void) {
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -84,6 +84,24 @@ void draw_rect(int start_x, int start_y, int width, int height, uint32_t color) 
 			color_buffer[(window_width * y) + x] = color;
 		}
 	}
+}
+
+void draw_point(int pos_x, int pos_y, int size, uint32_t color) {
+	//Check if start values and size values are within the window,
+	// else the for loop below will not be able to compute,
+	// index out of bound on color buffer
+
+	if (pos_x >= 0 && pos_y >= 0 && pos_x <= window_height && pos_y <= window_width) {
+
+		for (int y = pos_y; y < pos_y + size; y++)
+		{
+			for (int x = pos_x; x < pos_x + size; x++)
+			{
+				color_buffer[(window_width * y) + x] = color;
+			}
+		}
+	}
+
 }
 
 void draw_pixel(int x, int y, uint32_t color) {
