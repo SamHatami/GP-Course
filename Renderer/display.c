@@ -104,6 +104,7 @@ void draw_point(int pos_x, int pos_y, int size, uint32_t color) {
 
 }
 
+
 void draw_pixel(int x, int y, uint32_t color) {
 	color_buffer[(window_width * y) + x] = color;
 }

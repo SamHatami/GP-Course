@@ -13,3 +13,7 @@ typedef struct {
 
 vec2_t addvector2d(vec2_t v1, vec2_t v2);
 vec3_t addvector3d(vec3_t v1, vec3_t v2);
+vec2_t project(vec3_t v1);
+vec3_t vec3_rotate_x(vec3_t v, float angle);
+vec3_t vec3_rotate_y(vec3_t v, float angle);
+vec3_t vec3_rotate_z(vec3_t v, float angle);

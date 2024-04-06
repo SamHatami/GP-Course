@@ -9,9 +9,11 @@
 vec3_t cube_points[N_POINTS(9)];
 vec2_t projected_point[N_POINTS(9)];
 
-vec3_t camera_position = { .x = 0, .y = 0, .z = -5 };
+vec3_t camera_position = { .x = 0, .y = 0, .z = -3 };
+vec3_t cube_rotation = { .x = 0, .y = 0, .z = 0 };
 int fov_factor = 512;
 bool is_running = false;
+int prev_frame_time = 0;
 
 void setup(void) {
 	color_buffer = (uint32_t*)malloc(sizeof(uint32_t) * window_width * window_height);
@@ -51,21 +53,28 @@ void process_input(void) {
 	}
 }
 
-vec2_t project(vec3_t v) {
-	vec2_t projected = {
-		.x = v.x/v.z,
-		.y = v.y/v.z
-	};
-	return projected;
-
-}
 void update(void) {
+
+	int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - prev_frame_time);
+
+	if (time_to_wait > 0 && time_to_wait <= FRAME_TARGET_TIME) {
+		SDL_Delay(time_to_wait);
+	}
+
+	prev_frame_time = SDL_GetTicks();
+
+	cube_rotation.y += 0.001;
 
 	for (int i = 0; i < N_POINTS(9); i++) {
 
 		vec3_t point = cube_points[i];
-		point.z -= camera_position.z;
-		projected_point[i] = project(point);
+
+		vec3_t transformed_point = vec3_rotate_y(point, cube_rotation.y);
+		transformed_point = vec3_rotate_x(transformed_point, cube_rotation.y);
+		transformed_point = vec3_rotate_z(transformed_point, cube_rotation.y);
+
+		transformed_point.z -= camera_position.z;
+		projected_point[i] = project(transformed_point);
 	}
 }
 
