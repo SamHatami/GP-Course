@@ -22,10 +22,10 @@ vec3_t addvector3d(vec3_t v1, vec3_t v2)
 	return v3;
 }
 
-vec2_t project(vec3_t v1) {
+vec2_t project(vec3_t v1, int fov) {
 	vec2_t v2 = {
-		.x = v1.x / v1.z,
-		.y = v1.y / v1.z
+		.x = (fov*v1.x) / v1.z,
+		.y = (fov*v1.y) / v1.z
 	};
 
 	return v2;

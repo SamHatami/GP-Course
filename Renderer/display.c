@@ -1,4 +1,5 @@
 #include "display.h"
+#include "triangle.h"
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
@@ -118,4 +119,32 @@ void destroy_window(void) {
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit;
+}
+
+void draw_triangle(triangle_t triangle, uint32_t color) {
+
+	draw_line(triangle.points[0], triangle.points[1], 0xFFFFFFFF);
+	draw_line(triangle.points[1], triangle.points[2], 0xFFFFFFFF);
+	draw_line(triangle.points[2], triangle.points[0], 0xFFFFFFFF);
+}
+
+void draw_line(vec2_t p1, vec2_t p2, uint32_t color) {
+
+	int delta_x = p2.x - p1.x;
+	int delta_y = p2.y - p1.y;
+
+	int side_length = abs(delta_x) >= abs(delta_y) ? abs(delta_x) : abs(delta_y);
+
+	float x_inc = delta_x / (float)side_length;
+	float y_inc = delta_y / (float)side_length;
+
+	float current_x = p1.x;
+	float current_y = p1.y;
+
+	for (int i = 0; i <= side_length; i++) {
+		draw_pixel(round(current_x), round(current_y), color);
+		current_x += x_inc;
+		current_y += y_inc;
+	}
+
 }
