@@ -59,6 +59,20 @@ void draw_gradient(void) {
 	}
 }
 
+void draw_2dgrid(uint32_t color) {
+	int grid_step = 10;
+
+	for (int y = 0; y < window_height; y++)
+	{
+		for (int x = 0; x < window_width; x++)
+		{
+			if (x % grid_step == 0 || y % grid_step == 0) {
+				color_buffer[(window_width * y) + x] = color;
+			}
+		}
+	}
+}
+
 void draw_grid(uint32_t color) {
 	int grid_step = 10;
 

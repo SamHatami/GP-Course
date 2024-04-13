@@ -1,7 +1,7 @@
 #include "vector.h"
 #include <math.h>
 
-vec2_t addvector2d(vec2_t v1, vec2_t v2)
+vec2_t vec2_add(vec2_t v1, vec2_t v2)
 {
 	float x = v1.x + v2.x; //pointers some place?
 	float y = v2.x + v2.x;
@@ -11,7 +11,60 @@ vec2_t addvector2d(vec2_t v1, vec2_t v2)
 	return v3;
 }
 
-vec3_t addvector3d(vec3_t v1, vec3_t v2)
+vec2_t vec2_subtract(vec2_t v1, vec2_t v2) {
+
+	float x = v1.x - v2.x; //pointers some place?
+	float y = v2.x - v2.x;
+
+	vec2_t v3 = { x,y };
+
+	return v3;
+}
+
+vec2_t vec2_scalar(vec2_t v1, float a)
+{
+	vec2_t v = { .x = v1.x * a, .y = v1.y * a };
+	return v;
+}
+
+vec2_t vec2_div(vec2_t v1, float a) {
+
+	vec2_t v = { .x = v1.x / a, .y = v1.y / a };
+	return v;
+
+}
+
+
+float vec2_length(vec2_t v) {
+
+	return sqrt(v.x * v.x + v.y * v.y);
+}
+
+float vec2_dot(vec2_t v1, vec2_t v2) {
+
+	return (v1.x * v2.x + v1.y * v2.y);
+}
+
+vec2_t project(vec3_t v1, int fov) {
+	vec2_t v2 = {
+		.x = (fov*v1.x) / v1.z,
+		.y = (fov*v1.y) / v1.z
+	};
+
+	return v2;
+}
+
+float vec3_length(vec3_t v) {
+
+	return sqrt(v.x * v.x + v.y * v.y + v.z*v.z);
+}
+
+float vec3_dot(vec3_t v1, vec3_t v2) {
+
+	return (v1.x * v2.x + v1.y * v2.y + v1.z*v2.z);
+}
+
+vec3_t vec3_add(vec3_t v1, vec3_t v2)
 {
 	float x = v1.x + v2.x;
 	float y = v1.y + v2.y;
@@ -22,13 +75,28 @@ vec3_t addvector3d(vec3_t v1, vec3_t v2)
 	return v3;
 }
 
-vec2_t project(vec3_t v1, int fov) {
-	vec2_t v2 = {
-		.x = (fov*v1.x) / v1.z,
-		.y = (fov*v1.y) / v1.z
-	};
+vec3_t vec3_subtract(vec3_t v1, vec3_t v2)
+{
+	float x = v1.x - v2.x;
+	float y = v1.y - v2.y;
+	float z = v1.z - v2.z;
 
-	return v2;
+	vec3_t v3 = { x,y,z };
+
+	return v3;
+}
+
+vec3_t vec3_scalar(vec3_t v1, float a)
+{
+	vec3_t v = { .x = v1.x * a, .y = v1.y * a, .z = v1.z*a };
+	return v;
+}
+
+vec3_t vec3_div(vec3_t v1, float a) {
+
+	vec3_t v = { .x = v1.x / a, .y = v1.y / a, .z= v1.z/a };
+	return v;
+
 }
 
 vec3_t vec3_rotate_x(vec3_t v, float angle) {

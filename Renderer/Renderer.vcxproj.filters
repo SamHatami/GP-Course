@@ -51,4 +51,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\Models\quaddamage.obj">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Models\pot.obj">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
 </Project>
