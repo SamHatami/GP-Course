@@ -11,7 +11,7 @@ vec2_t vec2_add(vec2_t v1, vec2_t v2)
 	return v3;
 }
 
-vec2_t vec2_subtract(vec2_t v1, vec2_t v2) {
+vec2_t vec2_sub(vec2_t v1, vec2_t v2) {
 
 	float x = v1.x - v2.x; //pointers some place?
 	float y = v2.x - v2.x;
@@ -61,7 +61,7 @@ float vec3_length(vec3_t v) {
 
 float vec3_dot(vec3_t v1, vec3_t v2) {
 
-	return (v1.x * v2.x + v1.y * v2.y + v1.z*v2.z);
+	return (v1.x * v2.x) + (v1.y * v2.y) + (v1.z*v2.z);
 }
 
 vec3_t vec3_add(vec3_t v1, vec3_t v2)
@@ -75,7 +75,7 @@ vec3_t vec3_add(vec3_t v1, vec3_t v2)
 	return v3;
 }
 
-vec3_t vec3_subtract(vec3_t v1, vec3_t v2)
+vec3_t vec3_sub(vec3_t v1, vec3_t v2)
 {
 	float x = v1.x - v2.x;
 	float y = v1.y - v2.y;
@@ -97,6 +97,16 @@ vec3_t vec3_div(vec3_t v1, float a) {
 	vec3_t v = { .x = v1.x / a, .y = v1.y / a, .z= v1.z/a };
 	return v;
 
+}
+
+vec3_t vec3_cross(vec3_t v1, vec3_t v2) {
+	vec3_t n = {
+		.x = v1.y*v2.z - v1.z*v2.y,
+		.y = v1.z*v2.x - v1.x*v2.z,
+		.z = v1.x*v2.y - v1.y*v2.x
+	};
+
+	return n;
 }
 
 vec3_t vec3_rotate_x(vec3_t v, float angle) {
