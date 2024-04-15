@@ -10,10 +10,10 @@
 #define N_POINTS(x) (x * x * x)
 triangle_t* triangles_to_render = NULL;
 
-vec3_t camera_position = { .x = 0, .y = 0, .z = -5 };
+vec3_t camera_position = { .x = 0, .y = 0, .z = -20 };
 //vec3_t mesh.rotation = { .x = 0, .y = 0, .z = 0 };
 
-int fov_factor = 512;
+int fov_factor = 1500;
 bool is_running = false;
 int prev_frame_time = 0;
 
@@ -26,7 +26,9 @@ void setup(void) {
 		SDL_TEXTUREACCESS_STREAMING,
 		window_width, window_height);
 
-	load_cube_mesh_data();
+	//load_cube_mesh_data();
+	load_mesh_from_file("./Assets/Models/pot.obj");
+	//load_obj_file_data("./Assets/Models/pot.obj");
 }
 
 void process_input(void) {
@@ -57,8 +59,8 @@ void update(void) {
 	triangles_to_render = NULL;
 
 	mesh.rotation.x += 0.005;
-	mesh.rotation.y += 0.005;
-	mesh.rotation.z += 0.005;
+	mesh.rotation.y += 0.000;
+	mesh.rotation.z += 0.00;
 	int numfaces = array_length(mesh.faces);
 	for (int i = 0; i < numfaces; i++)
 	{
