@@ -54,9 +54,24 @@ vec2_t project(vec3_t v1, int fov) {
 	return v2;
 }
 
+void vec2_normalize(vec2_t* v) {
+
+	float length = sqrt(v->x * v->x + v->y * v->y);
+	v->x / length;
+	v->y / length;
+}
+
 float vec3_length(vec3_t v) {
 
 	return sqrt(v.x * v.x + v.y * v.y + v.z*v.z);
+}
+
+void vec3_normalize(vec3_t* v) {
+
+	float length = sqrt(v->x * v->x + v->y * v->y + v->z*v->z);
+	v->x / length;
+	v->y / length;
+	v->z / length;
 }
 
 float vec3_dot(vec3_t v1, vec3_t v2) {

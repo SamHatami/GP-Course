@@ -10,7 +10,7 @@
 #define N_POINTS(x) (x * x * x)
 triangle_t* triangles_to_render = NULL;
 
-vec3_t camera_position = { .x = 0, .y = 0, .z = -20 };
+vec3_t camera_position = { .x = 0, .y = 0, .z = 0 };
 //vec3_t mesh.rotation = { .x = 0, .y = 0, .z = 0 };
 
 int fov_factor = 1500;
@@ -27,7 +27,7 @@ void setup(void) {
 		window_width, window_height);
 
 	//load_cube_mesh_data();
-	load_mesh_from_file("./Assets/Models/pot.obj");
+	load_mesh_from_file("./Assets/Models/ArmorShard.obj");
 	//load_obj_file_data("./Assets/Models/pot.obj");
 }
 
@@ -72,7 +72,7 @@ void update(void) {
 		face_vertices[1] = mesh.vertices[mesh_face.b - 1];
 		face_vertices[2] = mesh.vertices[mesh_face.c - 1];
 
-		triangle_t projected_triangle;
+		vec3_t transformed_vertices[3];
 
 		for (int j = 0; j < 3; j++) {
 			vec3_t transformed_vertex = face_vertices[j];
@@ -81,9 +81,39 @@ void update(void) {
 			transformed_vertex = vec3_rotate_x(transformed_vertex, mesh.rotation.y);
 			transformed_vertex = vec3_rotate_z(transformed_vertex, mesh.rotation.z);
 
-			transformed_vertex.z -= camera_position.z;
+			transformed_vertex.z += -5;
+			transformed_vertex.y += -1;
+			
+			transformed_vertices[j] = transformed_vertex;
+		}
+		
+		vec3_t vector_a = transformed_vertices[0];
+		vec3_t vector_b = transformed_vertices[1];
+		vec3_t vector_c = transformed_vertices[2];
 
-			vec2_t projected_point = project(transformed_vertex, fov_factor);
+		vec3_t vector_ab = vec3_sub(vector_b, vector_a);
+		vec3_t vector_ac = vec3_sub(vector_c, vector_a);
+
+		vec3_normalize(&vector_ab);
+		vec3_normalize(&vector_ac);
+
+		vec3_t normal = vec3_cross(vector_ab, vector_ac); //order -> left handed coordinate system
+
+		vec3_normalize(&normal);
+
+		vec3_t camera = vec3_sub(camera_position, vector_a);
+
+
+
+		float dot = vec3_dot(normal, camera);
+
+		if (dot < 0) { continue; }
+			
+		triangle_t projected_triangle;
+
+		for (int j = 0; j < 3; j++) {
+
+			vec2_t projected_point = project(transformed_vertices[j], fov_factor);
 
 			projected_point.x += (window_width / 2);
 			projected_point.y += (window_height / 2);
