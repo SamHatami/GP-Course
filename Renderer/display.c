@@ -17,7 +17,7 @@ bool initilizeWindow(void) {
 	}
 
 	SDL_DisplayMode display_mode;
-	SDL_GetCurrentDisplayMode(0, &display_mode);
+	SDL_GetCurrentDisplayMode(2, &display_mode);
 
 	//window_width=display_mode.w;
 	//window_height = display_mode.h;
@@ -106,6 +106,12 @@ void draw_point(int pos_x, int pos_y, int size, uint32_t color) {
 	// else the for loop below will not be able to compute,
 	// index out of bound on color buffer
 
+	if (pos_x >= window_width || pos_x <= 0)
+		return;
+	if (pos_y >= window_height || pos_y <= 0)
+		return;
+
+
 	if (pos_x >= 0 && pos_y >= 0 && pos_x <= window_height && pos_y <= window_width) {
 
 		for (int y = pos_y; y < pos_y + size; y++)
@@ -121,7 +127,10 @@ void draw_point(int pos_x, int pos_y, int size, uint32_t color) {
 
 
 void draw_pixel(int x, int y, uint32_t color) {
-	color_buffer[(window_width * y) + x] = color;
+
+	if (x >= 0 && x < window_width && y >= 0 && y < window_height) {
+		color_buffer[(window_width * y) + x] = color;
+	}
 }
 void render_color_buffer(void) {
 	SDL_UpdateTexture(color_buffer_texture, NULL, color_buffer, (int)(window_width * sizeof(uint32_t)));
@@ -142,18 +151,18 @@ void draw_triangle(triangle_t triangle, uint32_t color) {
 	draw_line(triangle.points[2], triangle.points[0], 0xFFFFFFFF);
 }
 
-void draw_line(vec2_t p1, vec2_t p2, uint32_t color) {
+void draw_line(vec2_t p0, vec2_t p1, uint32_t color) {
 
-	int delta_x = p2.x - p1.x;
-	int delta_y = p2.y - p1.y;
+	int delta_x = (p1.x - p0.x);
+	int delta_y = (p1.y - p0.y);
 
 	int side_length = abs(delta_x) >= abs(delta_y) ? abs(delta_x) : abs(delta_y);
 
 	float x_inc = delta_x / (float)side_length;
 	float y_inc = delta_y / (float)side_length;
 
-	float current_x = p1.x;
-	float current_y = p1.y;
+	float current_x = (int)p0.x;
+	float current_y = (int)p0.y;
 
 	for (int i = 0; i <= side_length; i++) {
 		draw_pixel(round(current_x), round(current_y), color);
@@ -162,3 +171,28 @@ void draw_line(vec2_t p1, vec2_t p2, uint32_t color) {
 	}
 
 }
+
+void draw_int_line(int x0, int y0, int x1, int y1, uint32_t color) {
+	int delta_x = (x1 - x0);
+	int delta_y = (y1 - y0);
+
+	int longest_side_length = (abs(delta_x) >= abs(delta_y)) ? abs(delta_x) : abs(delta_y);
+
+	float x_inc = delta_x / (float)longest_side_length;
+	float y_inc = delta_y / (float)longest_side_length;
+
+	float current_x = x0;
+	float current_y = y0;
+
+	for (int i = 0; i <= longest_side_length; i++) {
+		draw_pixel(round(current_x), round(current_y), color);
+		current_x += x_inc;
+		current_y += y_inc;
+	}
+}
+
+void draw_normal(triangleNormal_t n, uint32_t color) {
+
+	draw_line(n.points[0], n.points[1], color);
+}
+

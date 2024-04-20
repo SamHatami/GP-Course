@@ -7,7 +7,8 @@
 mesh_t mesh = {
 	.vertices = NULL,
 	.faces = NULL,
-	.rotation = {0,0,0}
+	.rotation = {0,0,0},
+	.normals = NULL
 };
 
 vec3_t cube_vertices[N_CUBE_VERTICES] = {
@@ -97,7 +98,21 @@ void load_mesh_from_file(char* model) {
 				.b = triangle[1],
 				.c = triangle[2]
 			};
+
 			array_push(mesh.faces, newFace);
+
+			vec3_t vector_ab = vec3_sub(mesh.vertices[newFace.b], mesh.vertices[newFace.a]);
+			vec3_t vector_ac = vec3_sub(mesh.vertices[newFace.c], mesh.vertices[newFace.a]);
+
+			vec3_normalize(&vector_ab);
+			vec3_normalize(&vector_ac);
+
+			vec3_t normal = vec3_cross(vector_ab, vector_ac); //order -> left handed coordinate system
+
+			vec3_normalize(&normal);
+
+			array_push(mesh.normals, normal);
+		
 
 		}
 

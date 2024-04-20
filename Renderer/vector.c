@@ -79,11 +79,11 @@ float vec3_dot(vec3_t v1, vec3_t v2) {
 	return (v1.x * v2.x) + (v1.y * v2.y) + (v1.z*v2.z);
 }
 
-vec3_t vec3_add(vec3_t v1, vec3_t v2)
+vec3_t vec3_add(vec3_t* v1, vec3_t* v2)
 {
-	float x = v1.x + v2.x;
-	float y = v1.y + v2.y;
-	float z = v1.z + v2.z;
+	float x = v1->x + v2->x;
+	float y = v1->y + v2->y;
+	float z = v1->z + v2->z;
 
 	vec3_t v3 = { x,y,z };
 

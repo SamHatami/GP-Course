@@ -28,4 +28,7 @@ void draw_rect(int start_x, int start_y, int width, int height, uint32_t color);
 void draw_point(int pos_x, int pos_y, int size, uint32_t color);
 void draw_triangle(triangle_t triangle, uint32_t color);
 void draw_line(vec2_t p1, vec2_t p2, uint32_t color);
+void draw_int_line(int x0, int y0, int x1, int y1, uint32_t color);
+void draw_normal(triangleNormal_t n, uint32_t color);
+
 #endif

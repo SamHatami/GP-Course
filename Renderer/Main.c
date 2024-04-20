@@ -6,15 +6,19 @@
 #include "vector.h"
 #include "mesh.h"
 #include "array.h"
+#include "triangle.h"
 
 #define N_POINTS(x) (x * x * x)
 triangle_t* triangles_to_render = NULL;
-
+triangleNormal_t* triangleNormals_to_render = NULL;
 vec3_t camera_position = { .x = 0, .y = 0, .z = 0 };
 //vec3_t mesh.rotation = { .x = 0, .y = 0, .z = 0 };
 
 int fov_factor = 1500;
 bool is_running = false;
+bool show_normals = false;
+bool show_vertices = false;
+bool fill_triangles = false;
 int prev_frame_time = 0;
 
 void setup(void) {
@@ -43,6 +47,20 @@ void process_input(void) {
 		if (event.key.keysym.sym == SDLK_ESCAPE) {
 			is_running = false;
 		}
+
+		if (event.key.keysym.sym == SDLK_n) {
+			show_normals = !show_normals;
+		}
+
+		if (event.key.keysym.sym == SDLK_p) {
+			show_vertices = !show_vertices;
+		}
+
+		if (event.key.keysym.sym == SDLK_s) {
+			fill_triangles = !fill_triangles;
+		}
+		
+
 		break;
 	}
 }
@@ -58,21 +76,25 @@ void update(void) {
 
 	triangles_to_render = NULL;
 
+	triangleNormals_to_render = NULL;
+
 	mesh.rotation.x += 0.005;
-	mesh.rotation.y += 0.000;
-	mesh.rotation.z += 0.00;
+	mesh.rotation.y += 0.005;
+	mesh.rotation.z += 0.006;
 	int numfaces = array_length(mesh.faces);
 	for (int i = 0; i < numfaces; i++)
 	{
 		face_t mesh_face = mesh.faces[i];
 
 		vec3_t face_vertices[3];
+		vec3_t transformed_vertices[3];
+		vec3_t transformed_normal;
 
 		face_vertices[0] = mesh.vertices[mesh_face.a - 1];
 		face_vertices[1] = mesh.vertices[mesh_face.b - 1];
 		face_vertices[2] = mesh.vertices[mesh_face.c - 1];
 
-		vec3_t transformed_vertices[3];
+	
 
 		for (int j = 0; j < 3; j++) {
 			vec3_t transformed_vertex = face_vertices[j];
@@ -86,6 +108,7 @@ void update(void) {
 			
 			transformed_vertices[j] = transformed_vertex;
 		}
+		
 		
 		vec3_t vector_a = transformed_vertices[0];
 		vec3_t vector_b = transformed_vertices[1];
@@ -108,8 +131,31 @@ void update(void) {
 		float dot = vec3_dot(normal, camera);
 
 		if (dot < 0) { continue; }
-			
+
+		vec3_t midpoint_normal[2];
+		
+		triangle_midpoint_normal(midpoint_normal, normal, transformed_vertices);
+
+		triangleNormal_t  projected_normal;
+		
+		if (show_normals) {
+
+			for (int k = 0; k < 2; k++) {
+
+				vec2_t projected_normal_point = project(midpoint_normal[k], fov_factor);
+
+				projected_normal_point.x += (window_width / 2);
+				projected_normal_point.y += (window_height / 2);
+
+				projected_normal.points[k] = projected_normal_point;
+
+			}
+			array_push(triangleNormals_to_render, projected_normal);
+
+		}
+
 		triangle_t projected_triangle;
+
 
 		for (int j = 0; j < 3; j++) {
 
@@ -141,13 +187,32 @@ void render(void) {
 
 	for (int i = 0; i < numtris; i++) {
 		triangle_t triangle = triangles_to_render[i];
+		if (show_normals) {
+			triangleNormal_t normal = triangleNormals_to_render[i];
+			draw_normal(normal, 0xFFFFFF00);
+		}
 
-		draw_point(triangle.points[0].x, triangle.points[0].y, 5, 0xFF08FF00);
-		draw_point(triangle.points[1].x, triangle.points[1].y, 5, 0xFF08FF00);
-		draw_point(triangle.points[2].x, triangle.points[2].y, 5, 0xFF08FF00);
+		if (show_vertices) {
+			draw_point(triangle.points[0].x, triangle.points[0].y, 5, 0xFF08FF00);
+			draw_point(triangle.points[1].x, triangle.points[1].y, 5, 0xFF08FF00);
+			draw_point(triangle.points[2].x, triangle.points[2].y, 5, 0xFF08FF00);
+		}
+
+		if(fill_triangles)
+		{
+			draw_filled_triangle(
+				triangle.points[0].x, triangle.points[0].y,
+				triangle.points[1].x, triangle.points[1].y,
+				triangle.points[2].x, triangle.points[2].y,
+				0xFF08FF00
+			);
+		}
 
 		draw_triangle(triangle, 0xFFFFFFFF);
+
 	}
+
+
 
 	//draw_grid(0xFF808080);
 	array_free(triangles_to_render);
