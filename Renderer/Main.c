@@ -167,19 +167,13 @@ void update(void) {
 			projected_triangle.points[j] = projected_point;
 		}
 
+		projected_triangle.avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3;
+
+		
 		array_push(triangles_to_render, projected_triangle);
 	}
 
-	//for (int i = 0; i < N_POINTS(9); i++) {
-	//	vec3_t point = cube_points[i];
-
-	//	vec3_t transformed_point = vec3_rotate_y(point, mesh.rotation.y);
-	//	transformed_point = vec3_rotate_x(transformed_point, mesh.rotation.y);
-	//	transformed_point = vec3_rotate_z(transformed_point, mesh.rotation.y);
-
-	//	transformed_point.z -= camera_position.z;
-	//	projected_point[i] = project(transformed_point);
-	//}
+	sort_triangle_depth(triangles_to_render);
 }
 
 void render(void) {

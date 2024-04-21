@@ -122,3 +122,30 @@ void triangle_midpoint_normal(vec3_t midpoint_normal[],vec3_t n_normalized, vec3
 
 	
 }
+
+void sort_triangle_depth(triangle_t* triangle)
+{
+	//selection sort, 
+
+	int n = array_length(triangle);
+
+	for (int i = 0; i < n; i++)
+	{
+		int min = i;
+
+		for (int j = i + 1; j < n; j++) {
+
+			if (triangle[j].avg_depth < triangle[min].avg_depth) {
+
+				min = j;
+
+			}
+		}
+
+		//Sawp
+		triangle_t temp = triangle[i];
+		triangle[i] = triangle[min];
+		triangle[min] = temp;
+
+	}
+}
