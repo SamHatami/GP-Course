@@ -52,7 +52,6 @@ void fill_flat_top_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint
 		.y = y2
 	};
 
-
 	vec2_t end = {
 		.x = x2,
 		.y = y2
