@@ -8,6 +8,8 @@ mesh_t mesh = {
 	.vertices = NULL,
 	.faces = NULL,
 	.rotation = {0,0,0},
+	.scale= {1.0,1.0,1.0},
+	.translation = {0,0,0},
 	.normals = NULL
 };
 
