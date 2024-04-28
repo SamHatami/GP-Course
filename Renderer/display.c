@@ -172,6 +172,28 @@ void draw_line(vec2_t p0, vec2_t p1, uint32_t color) {
 
 }
 
+void draw_gradient_line(vec2_t p0, vec2_t p1, uint32_t color[])
+{
+	int delta_x = (p1.x - p0.x);
+	int delta_y = (p1.y - p0.y);
+
+	int side_length = abs(delta_x) >= abs(delta_y) ? abs(delta_x) : abs(delta_y);
+
+	float x_inc = delta_x / (float)side_length;
+	float y_inc = delta_y / (float)side_length;
+
+	float current_x = (int)p0.x;
+	float current_y = (int)p0.y;
+
+	//Interpolate color
+
+	for (int i = 0; i <= side_length; i++) {
+		draw_pixel(round(current_x), round(current_y), color);
+		current_x += x_inc;
+		current_y += y_inc;
+	}
+}
+
 void draw_int_line(int x0, int y0, int x1, int y1, uint32_t color) {
 	int delta_x = (x1 - x0);
 	int delta_y = (y1 - y0);
@@ -195,4 +217,3 @@ void draw_normal(triangleNormal_t n, uint32_t color) {
 
 	draw_line(n.points[0], n.points[1], color);
 }
-

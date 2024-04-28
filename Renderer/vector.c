@@ -66,6 +66,18 @@ float vec3_length(vec3_t v) {
 	return sqrt(v.x * v.x + v.y * v.y + v.z*v.z);
 }
 
+vec4_t vec3_to_vec4(vec3_t v)
+{
+	vec4_t v4 = { v.x,v.y,v.z,1.0 };
+	return v4;
+}
+
+vec3_t vec4_to_vec3(vec4_t v)
+{
+	vec3_t v3 = { v.x,v.y,v.z };
+	return v3;
+}
+
 void vec3_normalize(vec3_t* v) {
 
 	float length = sqrt(v->x * v->x + v->y * v->y + v->z*v->z);

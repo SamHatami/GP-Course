@@ -71,7 +71,7 @@ void fill_flat_top_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint
 	}
 }
 
-
+//Pixel-koordinater
 void draw_filled_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
 
 	if (y0 > y1) {
@@ -108,7 +108,12 @@ void draw_filled_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32
 
 }
 
-void triangle_midpoint_normal(vec3_t midpoint_normal[],vec3_t n_normalized, vec3_t tris[])
+void draw_textured_triangle(int x0, int y0, float u0, float v0, int x1, int y1, float u1, float v1, int x2, int y2, float u2, float v2, uint32_t color)
+{
+}
+
+
+void triangle_midpoint_normal(vec3_t midpoint_normal[],vec3_t n_normalized, vec4_t tris[])
 {
 
 	midpoint_normal[0].x = (tris[0].x + tris[1].x + tris[2].x) / 3;
@@ -118,10 +123,11 @@ void triangle_midpoint_normal(vec3_t midpoint_normal[],vec3_t n_normalized, vec3
 
 	midpoint_normal[1] = vec3_add(&midpoint_normal[0], &n_normalized);
 
-	vec3_normalize(&midpoint_normal[1]);
-
+	vec3_normalize(&midpoint_normal[1]); //returns endpoint
 	
 }
+
+
 
 void sort_triangle_depth(triangle_t* triangle)
 {
