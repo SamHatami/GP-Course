@@ -7,6 +7,7 @@
 #include "mesh.h"
 #include "array.h"
 #include "triangle.h"
+#include "texture.h"
 #include "matrix.h"
 #include "lights.h"
 #define N_POINTS(x) (x * x * x)
@@ -22,8 +23,8 @@ bool show_vertices = false;
 bool fill_triangles = false;
 bool show_triangle_edges = false;
 bool flat_shading = false;
-bool backface_culling = false;
-bool texture = false;
+bool backface_culling = true;
+bool texture = true;
 int prev_frame_time = 0;
 light_t directionalLight;
 uint32_t baseColor = 0xFFFFFFFF;
@@ -37,6 +38,10 @@ void setup(void) {
 		SDL_PIXELFORMAT_ARGB8888,
 		SDL_TEXTUREACCESS_STREAMING,
 		window_width, window_height);
+
+	mesh_texture = (uint32_t*)REDBRICK_TEXTURE;
+	texture_width = 64;
+	texture_height = 64;
 
 	load_cube_mesh_data();
 	//load_mesh_from_file("./Assets/Models/ArmorShard.obj");
@@ -116,7 +121,6 @@ void update(void) {
 	triangleNormals_to_render = NULL;
 
 	mesh.rotation.y += 0.005;
-	mesh.rotation.x += 0.005;
 
 	mesh.translation.y = 0;
 	mesh.translation.z = 1;
@@ -312,7 +316,7 @@ void render(void) {
 				triangle.points[0].x, triangle.points[0].y, triangle.texcoords[0].u, triangle.texcoords[0].v,
 				triangle.points[1].x, triangle.points[1].y, triangle.texcoords[1].u, triangle.texcoords[1].v,
 				triangle.points[2].x, triangle.points[2].y, triangle.texcoords[2].u, triangle.texcoords[2].v,
-				triangle.color
+				mesh_texture
 			);
 
 		}

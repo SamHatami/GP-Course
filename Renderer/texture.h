@@ -11,3 +11,5 @@ extern int texture_height;
 
 extern const uint8_t REDBRICK_TEXTURE[];
 
+extern uint32_t* mesh_texture;
+
