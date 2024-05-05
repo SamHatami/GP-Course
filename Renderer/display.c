@@ -146,9 +146,9 @@ void destroy_window(void) {
 
 void draw_triangle(triangle_t triangle, uint32_t color) {
 
-	draw_line(triangle.points[0], triangle.points[1], 0xFFFFFFFF);
-	draw_line(triangle.points[1], triangle.points[2], 0xFFFFFFFF);
-	draw_line(triangle.points[2], triangle.points[0], 0xFFFFFFFF);
+	draw_line(vec4_to_vec2(triangle.points[0]), vec4_to_vec2(triangle.points[1]), 0xFFFFFFFF);
+	draw_line(vec4_to_vec2(triangle.points[1]), vec4_to_vec2(triangle.points[2]), 0xFFFFFFFF);
+	draw_line(vec4_to_vec2(triangle.points[2]), vec4_to_vec2(triangle.points[0]), 0xFFFFFFFF);
 }
 
 void draw_line(vec2_t p0, vec2_t p1, uint32_t color) {

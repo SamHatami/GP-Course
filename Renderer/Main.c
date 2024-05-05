@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <SDL.h>
+#include "upng.h"
 #include "display.h"
 #include "vector.h"
 #include "mesh.h"
@@ -35,19 +36,21 @@ void setup(void) {
 
 	color_buffer_texture = SDL_CreateTexture(
 		renderer,
-		SDL_PIXELFORMAT_ARGB8888,
+		SDL_PIXELFORMAT_RGBA32,
 		SDL_TEXTUREACCESS_STREAMING,
 		window_width, window_height);
 
-	mesh_texture = (uint32_t*)REDBRICK_TEXTURE;
-	texture_width = 64;
-	texture_height = 64;
 
-	load_cube_mesh_data();
-	//load_mesh_from_file("./Assets/Models/ArmorShard.obj");
+	//load_cube_mesh_data();
+	load_png_texture_data("./Assets/efa.png");
+	load_obj_file_data("./Assets/efa.obj");
+
 	//load_mesh_from_file("./Assets/Models/Geosphere.obj");
-	//load_obj_file_data("./Assets/Models/pot.obj");
-
+	//load_mesh_file_data("./Assets/Models/pot.obj");
+	//load_obj_file_data("./Assets/cube.obj");
+	//texture_width = 64;
+	//texture_height = 64;
+	//mesh_texture = (uint32_t*)REDBRICK_TEXTURE;
 	//Initilalize perspective projection matrix
 	float fov = (M_PI / 180) * 60; //Field of view in radians
 	float aspect = (float)window_height / (float)window_width;
@@ -96,6 +99,11 @@ void process_input(void) {
 		}
 
 		if (event.key.keysym.sym == SDLK_6) {
+			texture = !texture;
+			fill_triangles = false;
+		}
+
+		if (event.key.keysym.sym == SDLK_7) {
 			show_normals = !show_normals;
 		}
 
@@ -121,9 +129,11 @@ void update(void) {
 	triangleNormals_to_render = NULL;
 
 	mesh.rotation.y += 0.005;
+	mesh.rotation.x += 0.005;
+
 
 	mesh.translation.y = 0;
-	mesh.translation.z = 1;
+	mesh.translation.z = 0.5;
 
 	mesh.scale.x = 0.1;
 	mesh.scale.y = 0.1;
@@ -148,15 +158,15 @@ void update(void) {
 		vec3_t face_verticesNormals[3];
 		vec3_t transformed_normal;
 
-		face_vertices[0] = mesh.vertices[mesh_face.a - 1];
-		face_vertices[1] = mesh.vertices[mesh_face.b - 1];
-		face_vertices[2] = mesh.vertices[mesh_face.c - 1];
+		face_vertices[0] = mesh.vertices[mesh_face.a];
+		face_vertices[1] = mesh.vertices[mesh_face.b];
+		face_vertices[2] = mesh.vertices[mesh_face.c];
 
 		if(mesh.vertex_normals != NULL)
 		{
-			face_verticesNormals[0] = mesh.vertex_normals[mesh_face.a - 1];
-			face_verticesNormals[1] = mesh.vertex_normals[mesh_face.b - 1];
-			face_verticesNormals[2] = mesh.vertex_normals[mesh_face.c - 1];
+			face_verticesNormals[0] = mesh.vertex_normals[mesh_face.a];
+			face_verticesNormals[1] = mesh.vertex_normals[mesh_face.b];
+			face_verticesNormals[2] = mesh.vertex_normals[mesh_face.c];
 		}
 
 		vec4_t transformed_vertices[3];
@@ -224,8 +234,9 @@ void update(void) {
 
 			projected_triangle.points[j].x = projected_point[j].x;
 			projected_triangle.points[j].y = projected_point[j].y;
-			
-			
+			projected_triangle.points[j].z = projected_point[j].z;
+			projected_triangle.points[j].w = projected_point[j].w;
+		
 		}
 
 		projected_triangle.texcoords[0].u = mesh_face.a_uv.u;
@@ -313,9 +324,9 @@ void render(void) {
 		if (texture) {
 
 			draw_textured_triangle(
-				triangle.points[0].x, triangle.points[0].y, triangle.texcoords[0].u, triangle.texcoords[0].v,
-				triangle.points[1].x, triangle.points[1].y, triangle.texcoords[1].u, triangle.texcoords[1].v,
-				triangle.points[2].x, triangle.points[2].y, triangle.texcoords[2].u, triangle.texcoords[2].v,
+				triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, triangle.texcoords[0].u, triangle.texcoords[0].v,
+				triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, triangle.texcoords[1].u, triangle.texcoords[1].v,
+				triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, triangle.texcoords[2].u, triangle.texcoords[2].v,
 				mesh_texture
 			);
 
@@ -354,6 +365,7 @@ void free_resources(void) {
 	free(color_buffer);
 	array_free(mesh.faces);
 	array_free(mesh.vertices);
+	upng_free(png_texture);
 }
 
 int main(void) {

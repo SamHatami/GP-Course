@@ -15,6 +15,7 @@ typedef struct {
 	vec3_t rotation;	//x,y,z rotation values
 	vec3_t scale;
 	vec3_t translation;
+	tex2_t* text_coordinates; // u,v (w excluded)
 	vec3_t* vertex_normals;
 	vec3_t* normals;
 } mesh_t;

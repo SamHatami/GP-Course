@@ -8,6 +8,7 @@ mesh_t mesh = {
 	.vertices = NULL,
 	.vertex_normals = NULL,
 	.faces = NULL,
+	.text_coordinates = NULL,
 	.rotation = {0,0,0},
 	.scale= {1.0,1.0,1.0},
 	.translation = {0,0,0},
@@ -27,23 +28,23 @@ vec3_t cube_vertices[N_CUBE_VERTICES] = {
 
 face_t cube_faces[N_CUBE_FACES] = {
 	// front
-	{.a = 1, .b = 2, .c = 3, .a_uv = { 0, 0 }, .b_uv = { 0, 1 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF },
-	{.a = 1, .b = 3, .c = 4, .a_uv = { 0, 0 }, .b_uv = { 1, 1 }, .c_uv = { 1, 0 }, .color = 0xFFFFFFFF },
+	{.a = 1, .b = 2, .c = 3, .a_uv = { 0, 1 }, .b_uv = { 0, 0 }, .c_uv = { 1, 0 }, .color = 0xFFFFFFFF },
+	{.a = 1, .b = 3, .c = 4, .a_uv = { 0, 1 }, .b_uv = { 1, 0 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF },
 	// right
-	{.a = 4, .b = 3, .c = 5, .a_uv = { 0, 0 }, .b_uv = { 0, 1 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF },
-	{.a = 4, .b = 5, .c = 6, .a_uv = { 0, 0 }, .b_uv = { 1, 1 }, .c_uv = { 1, 0 }, .color = 0xFFFFFFFF },
+	{.a = 4, .b = 3, .c = 5, .a_uv = { 0, 1 }, .b_uv = { 0, 0 }, .c_uv = { 1, 0 }, .color = 0xFFFFFFFF },
+	{.a = 4, .b = 5, .c = 6, .a_uv = { 0, 1 }, .b_uv = { 1, 0 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF },
 	// back
-	{.a = 6, .b = 5, .c = 7, .a_uv = { 0, 0 }, .b_uv = { 0, 1 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF },
-	{.a = 6, .b = 7, .c = 8, .a_uv = { 0, 0 }, .b_uv = { 1, 1 }, .c_uv = { 1, 0 }, .color = 0xFFFFFFFF },
+	{.a = 6, .b = 5, .c = 7, .a_uv = { 0, 1 }, .b_uv = { 0, 0 }, .c_uv = { 1, 0 }, .color = 0xFFFFFFFF },
+	{.a = 6, .b = 7, .c = 8, .a_uv = { 0, 1 }, .b_uv = { 1, 0 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF },
 	// left
-	{.a = 8, .b = 7, .c = 2, .a_uv = { 0, 0 }, .b_uv = { 0, 1 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF },
-	{.a = 8, .b = 2, .c = 1, .a_uv = { 0, 0 }, .b_uv = { 1, 1 }, .c_uv = { 1, 0 }, .color = 0xFFFFFFFF },
+	{.a = 8, .b = 7, .c = 2, .a_uv = { 0, 1 }, .b_uv = { 0, 0 }, .c_uv = { 1, 0 }, .color = 0xFFFFFFFF },
+	{.a = 8, .b = 2, .c = 1, .a_uv = { 0, 1 }, .b_uv = { 1, 0 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF },
 	// top
-	{.a = 2, .b = 7, .c = 5, .a_uv = { 0, 0 }, .b_uv = { 0, 1 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF },
-	{.a = 2, .b = 5, .c = 3, .a_uv = { 0, 0 }, .b_uv = { 1, 1 }, .c_uv = { 1, 0 }, .color = 0xFFFFFFFF },
+	{.a = 2, .b = 7, .c = 5, .a_uv = { 0, 1 }, .b_uv = { 0, 0 }, .c_uv = { 1, 0 }, .color = 0xFFFFFFFF },
+	{.a = 2, .b = 5, .c = 3, .a_uv = { 0, 1 }, .b_uv = { 1, 0 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF },
 	// bottom
-	{.a = 6, .b = 8, .c = 1, .a_uv = { 0, 0 }, .b_uv = { 0, 1 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF },
-	{.a = 6, .b = 1, .c = 4, .a_uv = { 0, 0 }, .b_uv = { 1, 1 }, .c_uv = { 1, 0 }, .color = 0xFFFFFFFF }
+	{.a = 6, .b = 8, .c = 1, .a_uv = { 0, 1 }, .b_uv = { 0, 0 }, .c_uv = { 1, 0 }, .color = 0xFFFFFFFF },
+	{.a = 6, .b = 1, .c = 4, .a_uv = { 0, 1 }, .b_uv = { 1, 0 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF }
 };
 
 void load_cube_mesh_data(void) {
@@ -63,7 +64,7 @@ void load_mesh_from_file(char* model) {
 	errno_t error;
 	error = fopen_s(&mesh_file,model, "r");
 	if (error != 0) {
-
+		return;
 	}
 	char line[1024];
 	float vertex[3];
@@ -109,20 +110,52 @@ void load_mesh_from_file(char* model) {
 
 		}
 
-
-		else if (strcmp(token, "f") == 0) {
+		else if (strcmp(token, "vt") == 0) {
 			i = 0;
 			while ((token = strtok_s(rest, " ", &rest))) {
-				
-				triangle[i] = atoi(&token[0]);
+				vertex[i] = atof(token);
 				i++;
-				if (i > 2)
-					continue;
 			}
+			tex2_t text_coordinates = {
+				.u = vertex[0],
+				.v = 1-vertex[1], //Flipp the v, perhaps use as a option bool
+			};
+
+			array_push(mesh.text_coordinates, text_coordinates);
+
+		}
+
+
+		else if (strcmp(token, "f", 2) == 0) {
+			i = 0;
+			int vertex_indices[3];
+			int texture_indices[3];
+			int normal_indices[3];
+
+			//TODO: Detta funkade inte heller för formatet som behövde läsas
+			//while ((token = strtok_s(rest, " ", &rest))) {
+			//	
+			//	triangle[i] = atoi(&token[0]); // vertex nr
+			//	texture_indices[i] = atoi(&token[2]);
+			//	i++;
+			//	if (i > 2)
+			//		continue;
+			//}
+
+			sscanf_s( 
+				&rest, "%d/%d/%d %d/%d/%d %d/%d/%d",
+				&vertex_indices[0], &texture_indices[0], &normal_indices[0],
+				&vertex_indices[1], &texture_indices[1], &normal_indices[1],
+				&vertex_indices[2], &texture_indices[2], &normal_indices[2]
+			);
+
 			face_t newFace = {
-				.a = triangle[0],
-				.b = triangle[1],
-				.c = triangle[2]
+				.a = triangle[0]-1,
+				.b = triangle[1]-1,
+				.c = triangle[2]-1,
+				.a_uv = mesh.text_coordinates[texture_indices[0]-1],
+				.b_uv = mesh.text_coordinates[texture_indices[1]-1],
+				.c_uv = mesh.text_coordinates[texture_indices[2]-1],
 			};
 
 			array_push(mesh.faces, newFace);
@@ -136,10 +169,6 @@ void load_mesh_from_file(char* model) {
 			vec3_t normal = vec3_cross(vector_ab, vector_ac); //order -> left handed coordinate system
 
 			vec3_normalize(&normal);
-
-			array_push(mesh.normals, normal);
-		
-
 		}
 
 
@@ -163,6 +192,17 @@ void load_obj_file_data(char* filename) {
 			sscanf_s(&line, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z);
 			array_push(mesh.vertices, vertex);
 		}
+
+		if (strncmp(line, "vt ", 2) == 0) {
+			vec3_t vertex;
+			sscanf_s(&line, "vt %f %f %f", &vertex.x, &vertex.y, &vertex.z);
+			tex2_t text_coordinates = {
+				.u = vertex.x,
+				.v = 1 - vertex.y, //Flipp the v, perhaps use as a option bool
+			};
+			array_push(mesh.text_coordinates, text_coordinates);
+		}
+
 		// Face information
 		if (strncmp(line, "f ", 2) == 0) {
 			int vertex_indices[3];
@@ -175,9 +215,12 @@ void load_obj_file_data(char* filename) {
 				&vertex_indices[2], &texture_indices[2], &normal_indices[2]
 			);
 			face_t face = {
-				.a = vertex_indices[0],
-				.b = vertex_indices[1],
-				.c = vertex_indices[2]
+				.a = vertex_indices[0] - 1,
+				.b = vertex_indices[1] - 1,
+				.c = vertex_indices[2] - 1,
+				.a_uv = mesh.text_coordinates[texture_indices[0] - 1],
+				.b_uv = mesh.text_coordinates[texture_indices[1] - 1],
+				.c_uv = mesh.text_coordinates[texture_indices[2] - 1],
 			};
 			array_push(mesh.faces, face);
 		}

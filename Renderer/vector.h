@@ -23,6 +23,7 @@ float vec2_dot(vec2_t v1, vec2_t v2);
 vec2_t vec2_add(vec2_t v1, vec2_t v2);
 vec2_t vec2_sub(vec2_t v1, vec2_t v2);
 vec2_t vec2_scalar(vec2_t v1, float a);
+vec2_t vec4_to_vec2(vec4_t v);
 vec2_t vec2_div(vec2_t v1, float a);
 void vec2_normalize(vec2_t* v);
 

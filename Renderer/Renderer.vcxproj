@@ -148,17 +148,20 @@
     <ClCompile Include="swap.c" />
     <ClCompile Include="texture.c" />
     <ClCompile Include="triangle.c" />
+    <ClCompile Include="upng.c" />
     <ClCompile Include="vector.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="array.h" />
     <ClInclude Include="display.h" />
     <ClInclude Include="lights.h" />
+    <ClInclude Include="Main.h" />
     <ClInclude Include="matrix.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="swap.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="triangle.h" />
+    <ClInclude Include="upng.h" />
     <ClInclude Include="vector.h" />
   </ItemGroup>
   <ItemGroup>

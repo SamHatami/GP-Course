@@ -27,6 +27,13 @@ vec2_t vec2_scalar(vec2_t v1, float a)
 	return v;
 }
 
+vec2_t vec4_to_vec2(vec4_t v1)
+{
+	vec2_t v = { .x = v1.x, .y = v1.y };
+
+	return v;
+}
+
 vec2_t vec2_div(vec2_t v1, float a) {
 
 	vec2_t v = { .x = v1.x / a, .y = v1.y / a };

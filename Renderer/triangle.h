@@ -14,7 +14,7 @@ typedef struct {
 } face_t;
 
 typedef struct {
-	vec2_t points[3];
+	vec4_t points[3];
 	tex2_t texcoords[3];
 	float avg_depth;
 	uint32_t color;
@@ -28,10 +28,12 @@ typedef struct {
 void draw_filled_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color);
 
 void draw_textured_triangle(
-	int x0, int y0, float u0, float v0, 
-	int x1, int y1, float u1, float v1, 
-	int x2, int y2, float u2, float v2, uint32_t* texture);
+	int x0, int y0, int z0, float w0, float u0, float v0, 
+	int x1, int y1, int z1, float w1, float u1, float v1, 
+	int x2, int y2, int z2, float w2, float u2, float v2, uint32_t* texture);
 
 void triangle_midpoint_normal(vec3_t midpoint_normal[], vec3_t n_normalized, vec4_t tris[]);
 
 void sort_triangle_depth(triangle_t* triangle);
+
+vec3_t BaryCentricWeights(float px, float py, float ax, float ay, float bx, float by, float cx, float cy);
