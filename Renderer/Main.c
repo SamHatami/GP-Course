@@ -11,13 +11,15 @@
 #include "texture.h"
 #include "matrix.h"
 #include "lights.h"
+#include "Camera.h"
 #define N_POINTS(x) (x * x * x)
-triangle_t* triangles_to_render = NULL;
-triangleNormal_t* triangleNormals_to_render = NULL;
-vec3_t camera_position = { .x = 0, .y = 0, .z = 0 };
-//vec3_t mesh.rotation = { .x = 0, .y = 0, .z = 0 };
 
-int fov_factor = 650;
+#define MAX_TRIANGLES_PER_MESH 10000
+triangle_t triangles_to_render[MAX_TRIANGLES_PER_MESH];
+int num_triangles_to_render = 0;
+triangleNormal_t* triangleNormals_to_render = NULL;
+
+
 bool is_running = false;
 bool show_normals = false;
 bool show_vertices = false;
@@ -26,13 +28,18 @@ bool show_triangle_edges = false;
 bool flat_shading = false;
 bool backface_culling = true;
 bool texture = true;
+
 int prev_frame_time = 0;
 light_t directionalLight;
 uint32_t baseColor = 0xFFFFFFFF;
 
+mat4_t world_matrix;
 mat4_t proj_matrix;
+mat4_t view_matrix;
+
 void setup(void) {
 	color_buffer = (uint32_t*)malloc(sizeof(uint32_t) * window_width * window_height);
+	z_buffer = (float*)malloc(sizeof(float) * window_width * window_height);
 
 	color_buffer_texture = SDL_CreateTexture(
 		renderer,
@@ -41,11 +48,12 @@ void setup(void) {
 		window_width, window_height);
 
 
+
 	//load_cube_mesh_data();
 	load_png_texture_data("./Assets/efa.png");
 	load_obj_file_data("./Assets/efa.obj");
 
-	//load_mesh_from_file("./Assets/Models/Geosphere.obj");
+	//load_obj_file_data("./Assets/Models/Geosphere.obj");
 	//load_mesh_file_data("./Assets/Models/pot.obj");
 	//load_obj_file_data("./Assets/cube.obj");
 	//texture_width = 64;
@@ -55,7 +63,7 @@ void setup(void) {
 	float fov = (M_PI / 180) * 60; //Field of view in radians
 	float aspect = (float)window_height / (float)window_width;
 	float znear = 0.1;
-	float zfar = 500;
+	float zfar = 100;
 	proj_matrix = mat4_make_perspective(fov, aspect, znear, zfar);
 }
 
@@ -120,25 +128,27 @@ void update(void) {
 
 	directionalLight.direction.x = 0;
 	directionalLight.direction.y = 0;
-	directionalLight.direction.z = 10;
-
+	directionalLight.direction.z = 1;
 	prev_frame_time = SDL_GetTicks();
 
-	triangles_to_render = NULL;
-
+	//Initialize the counter of triangles to render for the current frame
+	num_triangles_to_render = 0;
 	triangleNormals_to_render = NULL;
 
-	mesh.rotation.y += 0.005;
-	mesh.rotation.x += 0.005;
+	//mesh.rotation.x += 0.005;
 
+	camera.position.x += 0.008;
+	camera.position.y += 0.008;
 
 	mesh.translation.y = 0;
-	mesh.translation.z = 0.5;
+	mesh.translation.z = 4.0;
 
-	mesh.scale.x = 0.1;
-	mesh.scale.y = 0.1;
-	mesh.scale.z = 0.1;
+	vec3_t target = { 0, 0, 4};
+	vec3_t up_direction = { 0, 1, 0 };
+	//Create the view-matrix look at a hardcoded target point
+	view_matrix = mat4_look_at(camera.position, target, up_direction);
 
+	//Create scale, rotation and translation matrices that will be used to multiply
 	mat4_t scale_matrix = mat4_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
 
 	mat4_t translation_matrix = mat4_translate(mesh.translation.x, mesh.translation.y, mesh.translation.z);
@@ -176,15 +186,19 @@ void update(void) {
 			vec4_t transformed_vertex = vec3_to_vec4(face_vertices[j]);
 			vec4_t transformed_vertexNormal = vec3_to_vec4(face_verticesNormals[j]);
 
-			mat4_t world_matrix = mat4_identity();
+			world_matrix = mat4_identity();
 			world_matrix = mat4_mul_mat4(scale_matrix, world_matrix);
-			world_matrix = mat4_mul_mat4(rotation_x, world_matrix);
-			world_matrix = mat4_mul_mat4(rotation_y, world_matrix);
 			world_matrix = mat4_mul_mat4(rotation_z, world_matrix);
+			world_matrix = mat4_mul_mat4(rotation_y, world_matrix);
+			world_matrix = mat4_mul_mat4(rotation_x, world_matrix);
 			world_matrix = mat4_mul_mat4(translation_matrix, world_matrix);
 
+			//World matrix * 
 			transformed_vertex = mat4_mul_vec4(world_matrix, transformed_vertex);
 			transformed_vertexNormal = mat4_mul_vec4(world_matrix, transformed_vertexNormal);
+
+			transformed_vertex = mat4_mul_vec4(view_matrix, transformed_vertex);
+			transformed_vertexNormal = mat4_mul_vec4(view_matrix, transformed_vertexNormal);
 
 			transformed_vertices[j] = transformed_vertex;
 			transformed_verticesNormals[j] = vec4_to_vec3(transformed_vertexNormal);
@@ -204,7 +218,10 @@ void update(void) {
 
 		vec3_normalize(&normal);
 
-		vec3_t camera = vec3_sub(camera_position, vector_a);
+		vec3_t origin = { 0,0,0 };
+
+		//Find the vector between vertex A in the triangle and the camera origin
+		vec3_t camera = vec3_sub(origin, vector_a);
 
 		float dotCamera = vec3_dot(normal, camera);
 
@@ -218,6 +235,8 @@ void update(void) {
 		triangle_t projected_triangle;
 
 		vec4_t projected_point[3];
+
+		//*** PROJECTION ***
 
 		for (int j = 0; j < 3; j++) {
 			projected_point[j] = mat4_mul_vec4_project(proj_matrix, transformed_vertices[j]);
@@ -264,7 +283,6 @@ void update(void) {
 		//}
 
 		
-		projected_triangle.avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3;
 		
 		if (show_normals) {
 			vec3_t midpoint_normal[2];
@@ -294,16 +312,18 @@ void update(void) {
 
 		// Light caluclations  -> vector to single light source
 
-		array_push(triangles_to_render, projected_triangle);
+		if (num_triangles_to_render < MAX_TRIANGLES_PER_MESH) {
+			triangles_to_render[num_triangles_to_render++] = projected_triangle;
+		}
+
 	}
 
-	sort_triangle_depth(triangles_to_render);
+	//sort_triangle_depth(triangles_to_render);
 }
 
 void render(void) {
-	int numtris = array_length(triangles_to_render);
-
-	for (int i = 0; i < numtris; i++) {
+	
+	for (int i = 0; i < num_triangles_to_render; i++) {
 		triangle_t triangle = triangles_to_render[i];
 		if (show_normals) {
 			triangleNormal_t normal = triangleNormals_to_render[i];
@@ -314,9 +334,9 @@ void render(void) {
 		if (flat_shading)
 		{
 			draw_filled_triangle(
-				triangle.points[0].x, triangle.points[0].y,
-				triangle.points[1].x, triangle.points[1].y,
-				triangle.points[2].x, triangle.points[2].y,
+				triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w,
+				triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w,
+				triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w,
 				triangle.color
 			);
 		}
@@ -335,9 +355,9 @@ void render(void) {
 		if (fill_triangles)
 		{
 			draw_filled_triangle(
-				triangle.points[0].x, triangle.points[0].y,
-				triangle.points[1].x, triangle.points[1].y,
-				triangle.points[2].x, triangle.points[2].y,
+				triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w,
+				triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w,
+				triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w,
 				0xFF808080
 			);
 		}
@@ -353,16 +373,18 @@ void render(void) {
 	}
 
 	//draw_grid(0xFF808080);
-	array_free(triangles_to_render);
 
 	render_color_buffer();
+
 	clear_colorbuffer(0x00000000);
+	clear_z_buffer();
 
 	SDL_RenderPresent(renderer);
 }
 
 void free_resources(void) {
 	free(color_buffer);
+	free(z_buffer);
 	array_free(mesh.faces);
 	array_free(mesh.vertices);
 	upng_free(png_texture);

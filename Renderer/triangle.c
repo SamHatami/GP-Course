@@ -3,9 +3,7 @@
 #include "display.h"
 #include "swap.h"
 
-//void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
-//
-//}
+
 
 void draw_texel(int x, int y,
 	float x0, float y0, float z0, float w0, float u0, float v0,
@@ -13,18 +11,55 @@ void draw_texel(int x, int y,
 	float x2, float y2, float z2, float w2, float u2, float v2, uint32_t* texture) {
 	vec3_t weights = BaryCentricWeights(x, y, x0, y0, x1, y1, x2, y2);
 
+	if (y <0 || y>window_height || x<0 || x>window_width)
+		return;
 	float interpolated_u = (u0 / w0) * weights.x + (u1 / w1) * weights.y + (u2 / w2) * weights.z;
 	float interpolated_v = (v0 / w0) * weights.x + (v1 / w1) * weights.y + (v2 / w2) * weights.z;
-	float interpolatd_reciporcal_w = (1 / w0) * weights.x + (1 / w1) * weights.y + (1 / w2) * weights.z;
+	float interpolated_reciprocal_w = (1 / w0) * weights.x + (1 / w1) * weights.y + (1 / w2) * weights.z;
 
-	interpolated_u /= interpolatd_reciporcal_w;
-	interpolated_v /= interpolatd_reciporcal_w;
-	
+	interpolated_u /= interpolated_reciprocal_w;
+	interpolated_v /= interpolated_reciprocal_w;
+
 	int tex_x = abs((int)(interpolated_u * texture_width)) % texture_width;
-	int tex_y = abs((int)(interpolated_v * texture_height)) % texture_height ; //Why hacky?
+	int tex_y = abs((int)(interpolated_v * texture_height)) % texture_height; //Why hacky?
+
+	//Adjust 1/w so the pixels that are closer to the camera have smaller values
+	interpolated_reciprocal_w = 1.0 - interpolated_reciprocal_w;
+
+	//Only draw pixel if the depth value is less than the stored value in z-buffer
+	if (interpolated_reciprocal_w < z_buffer[(window_width * y) + x])
+	{
+		//Draw pixel at x,y with the color from the texture
+		draw_pixel(x, y, texture[(texture_width * tex_y) + tex_x]);
+
+		z_buffer[(window_width * y) + x] = interpolated_reciprocal_w;
+	}
+}
+
+void draw_filled_pixel(int x, int y,
+	float x0, float y0, float z0, float w0,
+	float x1, float y1, float z1, float w1,
+	float x2, float y2, float z2, float w2, uint32_t* color) {
 
 
-	draw_pixel(x, y, texture[(texture_width * tex_y) + tex_x]);
+	if (y <0 || y>window_height || x<0 || x>window_width)
+		return;
+
+	vec3_t weights = BaryCentricWeights(x, y, x0, y0, x1, y1, x2, y2);
+
+	float interpolated_reciprocal_w = (1 / w0) * weights.x + (1 / w1) * weights.y + (1 / w2) * weights.z;
+
+	//Adjust 1/w so the pixels that are closer to the camera have smaller values
+	interpolated_reciprocal_w = 1.0 - interpolated_reciprocal_w;
+
+	//Only draw pixel if the depth value is less than the stored value in z-buffer
+	if (interpolated_reciprocal_w < z_buffer[(window_width * y) + x])
+	{
+		//Draw pixel at x,y with the color from the texture
+		draw_pixel(x, y, color);
+
+		z_buffer[(window_width * y) + x] = interpolated_reciprocal_w;
+	}
 }
 
 void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
@@ -80,36 +115,116 @@ void fill_flat_top_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint
 	}
 }
 
-//Pixel-koordinater
-void draw_filled_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
+//Pixel-koordinater old draw fill triangle
+//void draw_filled_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
+//	if (y0 > y1) {
+//		int_swap(&y0, &y1);
+//		int_swap(&x0, &x1);
+//	}
+//
+//	if (y1 > y2) {
+//		int_swap(&y1, &y2);
+//		int_swap(&x1, &x2);
+//	}
+//	if (y0 > y1) {
+//		int_swap(&y0, &y1);
+//		int_swap(&x0, &x1);
+//	}
+//
+//	if (y1 == y2) {
+//		fill_flat_bottom_triangle(x0, y0, x1, y1, x2, y2, color);
+//	}
+//	else if (y0 == y1) {
+//		fill_flat_top_triangle(x0, y0, x1, y1, x2, y2, color);
+//	}
+//	else {
+//		int My = y1;
+//		int Mx = (((x2 - x0) * (y1 - y0)) / (y2 - y0)) + x0;
+//
+//		fill_flat_bottom_triangle(x0, y0, x1, y1, Mx, My, color);
+//		fill_flat_top_triangle(x1, y1, Mx, My, x2, y2, color);
+//	}
+//}
+
+
+void draw_filled_triangle(int x0, int y0, int z0, int w0, int x1, int y1, int z1, int w1, int x2, int y2, int z2, int w2, uint32_t color) {
+
 	if (y0 > y1) {
 		int_swap(&y0, &y1);
 		int_swap(&x0, &x1);
-	}
+		float_swap(&z0, &z1);
+		float_swap(&w0, &w1);
 
+	}
 	if (y1 > y2) {
 		int_swap(&y1, &y2);
 		int_swap(&x1, &x2);
+		float_swap(&z1, &z2);
+		float_swap(&w1, &w2);
+
 	}
 	if (y0 > y1) {
 		int_swap(&y0, &y1);
 		int_swap(&x0, &x1);
+		float_swap(&z0, &z1);
+		float_swap(&w0, &w1);
+
+	}
+	// Top part of scanline rendering
+	float inv_slope_1 = 0;
+	float inv_slope_2 = 0;
+
+	if (y1 - y0 != 0) inv_slope_1 = (float)(x1 - x0) / abs(y1 - y0);
+	if (y2 - y0 != 0) inv_slope_2 = (float)(x2 - x0) / abs(y2 - y0);
+
+	if (y1 - y0 != 0) {
+		for (int y = y0; y <= y1; y++) {
+			int x_start = x1 + (y - y1) * inv_slope_1;
+			int x_end = x0 + (y - y0) * inv_slope_2;
+
+			if (x_end < x_start) {
+				int_swap(&x_start, &x_end); // swap if x_start is to the right of x_end
+			}
+
+			for (int x = x_start; x < x_end; x++) {
+				// Draw our pixel with a custom color
+				draw_filled_pixel(
+					x, y,
+					x0, y0, z0, w0, 
+					x1, y1, z1, w1, 
+					x2, y2, z2, w2,color);
+			}
+		}
 	}
 
-	if (y1 == y2) {
-		fill_flat_bottom_triangle(x0, y0, x1, y1, x2, y2, color);
-	}
-	else if (y0 == y1) {
-		fill_flat_top_triangle(x0, y0, x1, y1, x2, y2, color);
-	}
-	else {
-		int My = y1;
-		int Mx = (((x2 - x0) * (y1 - y0)) / (y2 - y0)) + x0;
+	inv_slope_1 = 0;
+	inv_slope_2 = 0;
 
-		fill_flat_bottom_triangle(x0, y0, x1, y1, Mx, My, color);
-		fill_flat_top_triangle(x1, y1, Mx, My, x2, y2, color);
+	if (y2 - y1 != 0) inv_slope_1 = (float)(x2 - x1) / abs(y2 - y1);
+	if (y2 - y0 != 0) inv_slope_2 = (float)(x2 - x0) / abs(y2 - y0);
+
+	if (y2 - y1 != 0) {
+		for (int y = y1; y <= y2; y++) {
+			int x_start = x1 + (y - y1) * inv_slope_1;
+			int x_end = x0 + (y - y0) * inv_slope_2;
+
+			if (x_end < x_start) {
+				int_swap(&x_start, &x_end); // swap if x_start is to the right of x_end
+			}
+
+			for (int x = x_start; x < x_end; x++)
+			{
+				draw_filled_pixel(
+					x, y,
+					x0, y0, z0, w0,
+					x1, y1, z1, w1,
+					x2, y2, z2, w2, color);
+			}
+		}
 	}
+
 }
+
 
 void draw_textured_triangle(
 	int x0, int y0, int z0, float w0, float u0, float v0,
@@ -196,6 +311,7 @@ void draw_textured_triangle(
 	}
 }
 
+
 vec3_t BaryCentricWeights(float px, float py, float ax, float ay, float bx, float by, float cx, float cy) {
 	vec3_t weights; //not a real vectors, just a keeper of three floats.
 
@@ -248,7 +364,7 @@ void triangle_midpoint_normal(vec3_t midpoint_normal[], vec3_t n_normalized, vec
 
 void sort_triangle_depth(triangle_t* triangle)
 {
-	//selection sort, some inte funkade....
+	//selection sort, some inte funkade :)
 
 	int n = array_length(triangle);
 

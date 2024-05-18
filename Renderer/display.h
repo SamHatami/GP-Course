@@ -12,6 +12,7 @@
 extern SDL_Window* window;
 extern SDL_Renderer* renderer;
 extern SDL_Texture* color_buffer_texture;
+extern float* z_buffer;
 extern uint32_t* color_buffer;
 extern int window_width;
 extern int window_height;
@@ -19,6 +20,7 @@ extern int window_height;
 bool initilizeWindow(void);
 void render_color_buffer(void);
 void clear_colorbuffer(uint32_t color);
+void clear_z_buffer(void);
 void destroy_window(void);
 void draw_gradient(void);
 void draw_pixel(int x, int y, uint32_t color);

@@ -6,8 +6,9 @@ SDL_Renderer* renderer = NULL;
 SDL_Texture* color_buffer_texture = NULL;
 
 uint32_t* color_buffer = NULL;
+float* z_buffer = NULL;
 
-int window_width = 1280;
+int window_width = 1600;
 int window_height = 1280;
 
 bool initilizeWindow(void) {
@@ -17,7 +18,9 @@ bool initilizeWindow(void) {
 	}
 
 	SDL_DisplayMode display_mode;
-	SDL_GetCurrentDisplayMode(2, &display_mode);
+	SDL_GetCurrentDisplayMode(1, &display_mode);
+
+
 
 	//window_width=display_mode.w;
 	//window_height = display_mode.h;
@@ -45,6 +48,14 @@ void clear_colorbuffer(uint32_t color) {
 		for (int x = 0; x < window_width; x++)
 		{
 			color_buffer[(window_width * y) + x] = color;
+		}
+	}
+}
+
+void clear_z_buffer(void) {
+	for (int y = 0; y < window_height; y++) {
+		for (int x = 0; x < window_width; x++) {
+			z_buffer[(window_width * y) + x] = 1.0;
 		}
 	}
 }
