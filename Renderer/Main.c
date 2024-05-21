@@ -21,6 +21,9 @@ triangleNormal_t* triangleNormals_to_render = NULL;
 
 
 bool is_running = false;
+float delta_time = 0;
+int prev_frame_time = 0;
+
 bool show_normals = false;
 bool show_vertices = false;
 bool fill_triangles = false;
@@ -29,7 +32,6 @@ bool flat_shading = false;
 bool backface_culling = true;
 bool texture = true;
 
-int prev_frame_time = 0;
 light_t directionalLight;
 uint32_t baseColor = 0xFFFFFFFF;
 
@@ -65,12 +67,16 @@ void setup(void) {
 	float znear = 0.1;
 	float zfar = 100;
 	proj_matrix = mat4_make_perspective(fov, aspect, znear, zfar);
+
+	init_frustum_places(fov, znear, zfar)
 }
 
 void process_input(void) {
 	SDL_Event event;
+	SDL_MouseMotionEvent mouseEvent;
+	
 	SDL_PollEvent(&event);
-
+	
 	switch (event.type) {
 	case SDL_QUIT:
 		is_running = false;
@@ -115,37 +121,83 @@ void process_input(void) {
 			show_normals = !show_normals;
 		}
 
+		if (event.key.keysym.sym == SDLK_w) {
+			camera.forward_velocity = vec3_scalar(camera.direction, 5 * delta_time);
+			camera.position = vec3_add(&camera.position, &camera.forward_velocity);
+		}
+
+
+		if (event.key.keysym.sym == SDLK_s)
+		{
+			camera.forward_velocity = vec3_scalar(camera.direction, 5 * delta_time);
+			camera.position = vec3_sub(camera.position, camera.forward_velocity);
+		}
+
+		if (event.key.keysym.sym == SDLK_a)
+	
+			camera.position.x -= 1.0 * delta_time;
+
+
+		if (event.key.keysym.sym == SDLK_d)
+			camera.position.x += 1.0 * delta_time;
+
+		if (event.key.keysym.sym == SDLK_UP)
+			camera.position.y += 1.0 * delta_time;
+		
+		if (event.key.keysym.sym == SDLK_DOWN)
+			camera.position.y -= 1.0 * delta_time;
+
+		if (event.key.keysym.sym == SDLK_LEFT)
+			camera.yaw -= 1.0 * delta_time;
+
+		if (event.key.keysym.sym == SDLK_RIGHT)
+			camera.yaw += 1.0 * delta_time;
 		break;
+
 	}
 }
 
 void update(void) {
-	int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - prev_frame_time);
+	//int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - prev_frame_time);
 
-	if (time_to_wait > 0 && time_to_wait <= FRAME_TARGET_TIME) {
-		SDL_Delay(time_to_wait);
-	}
+	//if (time_to_wait > 0 && time_to_wait <= FRAME_TARGET_TIME) {
+	//	SDL_Delay(time_to_wait);
+	//}
+
+	delta_time = (SDL_GetTicks() - prev_frame_time)/1000.0;
+	prev_frame_time = SDL_GetTicks();
 
 	directionalLight.direction.x = 0;
 	directionalLight.direction.y = 0;
 	directionalLight.direction.z = 1;
-	prev_frame_time = SDL_GetTicks();
+
 
 	//Initialize the counter of triangles to render for the current frame
 	num_triangles_to_render = 0;
 	triangleNormals_to_render = NULL;
 
-	//mesh.rotation.x += 0.005;
+	//mesh.rotation.x += 5*delta_time;
 
-	camera.position.x += 0.008;
-	camera.position.y += 0.008;
+	//camera.position.x += 0.008;
+	//camera.position.y += 0.008;
 
 	mesh.translation.y = 0;
-	mesh.translation.z = 4.0;
+	mesh.translation.z = 5.0;
 
-	vec3_t target = { 0, 0, 4};
-	vec3_t up_direction = { 0, 1, 0 };
 	//Create the view-matrix look at a hardcoded target point
+
+	
+
+	vec3_t target = { 0, 0, 1 };
+	mat4_t camera_yaw_rotation = mat4_rotate(camera.yaw, 1);
+	vec4_t newtarget = vec3_to_vec4(target);
+	
+	camera.direction = vec4_to_vec3(mat4_mul_vec4(camera_yaw_rotation, vec3_to_vec4(target)));
+
+	//Offset the camera position in the direction where the camera i spoiinting at
+	target = vec3_add(&camera.position, &camera.direction);
+	vec3_t up_direction = { 0, 1, 0 };
+
 	view_matrix = mat4_look_at(camera.position, target, up_direction);
 
 	//Create scale, rotation and translation matrices that will be used to multiply

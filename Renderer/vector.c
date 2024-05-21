@@ -12,7 +12,6 @@ vec2_t vec2_add(vec2_t v1, vec2_t v2)
 }
 
 vec2_t vec2_sub(vec2_t v1, vec2_t v2) {
-
 	float x = v1.x - v2.x; //pointers some place?
 	float y = v2.x - v2.x;
 
@@ -35,42 +34,41 @@ vec2_t vec4_to_vec2(vec4_t v1)
 }
 
 vec2_t vec2_div(vec2_t v1, float a) {
-
 	vec2_t v = { .x = v1.x / a, .y = v1.y / a };
 	return v;
-
 }
 
+vec2_t vec2_new(float x, float y)
+{
+	vec2_t v = { x,y };
+	return v;
+}
 
 float vec2_length(vec2_t v) {
-
 	return sqrt(v.x * v.x + v.y * v.y);
 }
 
 float vec2_dot(vec2_t v1, vec2_t v2) {
-
 	return (v1.x * v2.x + v1.y * v2.y);
 }
 
 vec2_t project(vec3_t v1, int fov) {
 	vec2_t v2 = {
-		.x = (fov*v1.x) / v1.z,
-		.y = (fov*v1.y) / v1.z
+		.x = (fov * v1.x) / v1.z,
+		.y = (fov * v1.y) / v1.z
 	};
 
 	return v2;
 }
 
 void vec2_normalize(vec2_t* v) {
-
 	float length = sqrt(v->x * v->x + v->y * v->y);
 	v->x / length;
 	v->y / length;
 }
 
 float vec3_length(vec3_t v) {
-
-	return sqrt(v.x * v.x + v.y * v.y + v.z*v.z);
+	return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
 vec4_t vec3_to_vec4(vec3_t v)
@@ -92,9 +90,14 @@ void vec3_normalize(vec3_t* v) {
 	v->z /= length;
 }
 
-float vec3_dot(vec3_t v1, vec3_t v2) {
+vec3_t vec3_new(float x, float y, float z)
+{
+	vec3_t v = { x, y, z };
+	return v;
+}
 
-	return (v1.x * v2.x) + (v1.y * v2.y) + (v1.z*v2.z);
+float vec3_dot(vec3_t v1, vec3_t v2) {
+	return (v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z);
 }
 
 vec3_t vec3_add(vec3_t* v1, vec3_t* v2)
@@ -108,35 +111,31 @@ vec3_t vec3_add(vec3_t* v1, vec3_t* v2)
 	return v3;
 }
 
-vec3_t vec3_sub(vec3_t v1, vec3_t v2)
-{
-	float x = v1.x - v2.x;
-	float y = v1.y - v2.y;
-	float z = v1.z - v2.z;
-
-	vec3_t v3 = { x,y,z };
-
-	return v3;
+vec3_t vec3_sub(vec3_t a, vec3_t b) {
+	vec3_t result = {
+		.x = a.x - b.x,
+		.y = a.y - b.y,
+		.z = a.z - b.z
+	};
+	return result;
 }
 
 vec3_t vec3_scalar(vec3_t v1, float a)
 {
-	vec3_t v = { .x = v1.x * a, .y = v1.y * a, .z = v1.z*a };
+	vec3_t v = { .x = v1.x * a, .y = v1.y * a, .z = v1.z * a };
 	return v;
 }
 
 vec3_t vec3_div(vec3_t v1, float a) {
-
-	vec3_t v = { .x = v1.x / a, .y = v1.y / a, .z= v1.z/a };
+	vec3_t v = { .x = v1.x / a, .y = v1.y / a, .z = v1.z / a };
 	return v;
-
 }
 
 vec3_t vec3_cross(vec3_t v1, vec3_t v2) {
 	vec3_t n = {
-		.x = v1.y*v2.z - v1.z*v2.y,
-		.y = v1.z*v2.x - v1.x*v2.z,
-		.z = v1.x*v2.y - v1.y*v2.x
+		.x = v1.y * v2.z - v1.z * v2.y,
+		.y = v1.z * v2.x - v1.x * v2.z,
+		.z = v1.x * v2.y - v1.y * v2.x
 	};
 
 	return n;
