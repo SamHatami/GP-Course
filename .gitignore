@@ -2,5 +2,6 @@
 *.vsidx
 
 .vs/3DSoftwareRendering/v17/
-
+.idea/
+.vs/
 Debug/
